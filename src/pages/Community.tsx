@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
+import { getAccessiblePlaces } from "@/lib/api"; // ✅ Correct backend import
 
 const getTypeInfo = (type: string) => {
   switch (type) {
@@ -27,15 +28,14 @@ const getTypeInfo = (type: string) => {
 };
 
 const Community = () => {
-  const { data: submissions, isLoading, error } = useQuery({
+  // ✅ Use backend API
+  const {
+    data: submissions,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["submissions"],
-    queryFn: async () => {
-      const response = await fetch("http://localhost:8000/api/submissions?status=approved");
-      if (!response.ok) {
-        throw new Error("Failed to fetch submissions");
-      }
-      return response.json();
-    },
+    queryFn: getAccessiblePlaces, // <-- backend call
   });
 
   if (isLoading) {
@@ -69,7 +69,10 @@ const Community = () => {
             {submissions?.map((submission: any) => {
               const { icon } = getTypeInfo(submission.type);
               return (
-                <Card key={submission.id} className="p-6 hover:shadow-lg transition-shadow">
+                <Card
+                  key={submission.id}
+                  className="p-6 hover:shadow-lg transition-shadow"
+                >
                   <div className="flex gap-4">
                     <div className="text-4xl">{icon}</div>
 
@@ -77,10 +80,18 @@ const Community = () => {
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <h3 className="text-xl font-semibold mb-1">
-                            {submission.description ? submission.description.substring(0, 50) + (submission.description.length > 50 ? "..." : "") : "Accessibility Report"}
+                            {submission.description
+                              ? submission.description.substring(0, 50) +
+                                (submission.description.length > 50
+                                  ? "..."
+                                  : "")
+                              : "Accessibility Report"}
                           </h3>
-                          <p className="text-sm text-muted-foreground">{submission.description}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {submission.description}
+                          </p>
                         </div>
+
                         {submission.verified && (
                           <Badge className="bg-primary gap-1 whitespace-nowrap">
                             <CheckCircle2 size={14} />
@@ -91,14 +102,23 @@ const Community = () => {
 
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
-                          {Array.from({ length: submission.rating || 0 }).map((_, i) => (
-                            <span key={i}>⭐</span>
-                          ))}
+                          {Array.from({ length: submission.rating || 0 }).map(
+                            (_, i) => (
+                              <span key={i}>⭐</span>
+                            )
+                          )}
                         </div>
+
                         <span>•</span>
+
                         <div className="flex items-center gap-1">
                           <Clock size={14} />
-                          {submission.created_at ? formatDistanceToNow(new Date(submission.created_at), { addSuffix: true }) : "Just now"}
+                          {submission.created_at
+                            ? formatDistanceToNow(
+                                new Date(submission.created_at),
+                                { addSuffix: true }
+                              )
+                            : "Just now"}
                         </div>
                       </div>
 
@@ -116,6 +136,7 @@ const Community = () => {
                 </Card>
               );
             })}
+
             {submissions?.length === 0 && (
               <div className="text-center text-muted-foreground py-8">
                 No submissions yet. Be the first to contribute!
