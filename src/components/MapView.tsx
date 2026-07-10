@@ -252,7 +252,7 @@ const MapView = ({ onAddMarker }: MapViewProps) => {
 
     if (accuracyCircle.current) accuracyCircle.current.remove();
 
-    accuracyCircle.current = new tt.Marker({ element: circle })
+    accuracyCircle.current = new tt.Marker({ element: circle, anchor: "center" })
       .setLngLat([lng, lat])
       .addTo(map.current);
   };
@@ -261,11 +261,14 @@ const MapView = ({ onAddMarker }: MapViewProps) => {
     if (!userMarker.current) {
       const dot = document.createElement("div");
       dot.style.cssText = `
-        width:22px;height:22px;border-radius:50%;
-        background:#3b82f6;border:3px solid white;
-        box-shadow:0 2px 8px rgba(59,130,246,.5)
+        width:18px;
+        height:18px;
+        border-radius:50%;
+        background:#3b82f6;
+        border:3px solid rgba(255,255,255,0.95);
+        box-shadow:0 0 0 4px rgba(59,130,246,0.15);
       `;
-      userMarker.current = new tt.Marker({ element: dot })
+      userMarker.current = new tt.Marker({ element: dot, anchor: "center" })
         .setLngLat([lng, lat])
         .addTo(map.current);
     } else {
