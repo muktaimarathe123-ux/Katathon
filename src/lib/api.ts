@@ -1,14 +1,20 @@
 const API_BASE = "http://127.0.0.1:8000";
 
-// GET all accessible places
+// Fetch community submissions (used by Community page)
 export async function getAccessiblePlaces() {
-  const res = await fetch(`${API_BASE}/accessible_places`);
+  const res = await fetch(`${API_BASE}/api/submissions`);
   return res.json();
 }
 
-// Submit a new place
+// Fetch approved places for map display (accessible places + obstacles)
+export async function getPlaces() {
+  const res = await fetch(`${API_BASE}/api/places`);
+  return res.json();
+}
+
+// Submit a new place/report
 export async function submitPlace(data: any) {
-  const res = await fetch(`${API_BASE}/submit_place`, {
+  const res = await fetch(`${API_BASE}/api/submit-report`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -16,9 +22,9 @@ export async function submitPlace(data: any) {
   return res.json();
 }
 
-// Get route
+// Get route comparison / accessible route from backend
 export async function getRoute(start: any, end: any) {
-  const res = await fetch(`${API_BASE}/route`, {
+  const res = await fetch(`${API_BASE}/api/calculate-route`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ start, end }),

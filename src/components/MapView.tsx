@@ -8,7 +8,8 @@ import { Search, Navigation2, Layers, Plus } from "lucide-react";
 import { toast } from "sonner";
 import tt from "@tomtom-international/web-sdk-maps";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
-import { supabase } from "@/integrations/firebase/supabase/client";
+// Backend API base
+const API_BASE = "http://127.0.0.1:8000";
 
 interface MapViewProps {
   onAddMarker: () => void;
@@ -35,7 +36,8 @@ const MapView = ({ onAddMarker }: MapViewProps) => {
   const accuracyCircle = useRef<any>(null);
   const userMarker = useRef<any>(null);
   const heatmapLayerId = "heatmap-layer";
-  const routeLayerRef = useRef<string | null>(null);
+  const routeLayerRefNormal = useRef<string | null>(null);
+  const routeLayerRefAccessible = useRef<string | null>(null);
   const destMarkerRef = useRef<any>(null);
   const watchId = useRef<number | null>(null);
 
@@ -70,17 +72,17 @@ const MapView = ({ onAddMarker }: MapViewProps) => {
   //---------------------------------------------------------
   const loadMarkers = async () => {
     try {
-      const { data } = await supabase.from("accessible_places").select("*");
+      const resp = await fetch(`${API_BASE}/api/places`);
+      const data = await resp.json();
 
       const demoMarkers = generateDemoShivajinagar(); // 30 demo markers around Pune
-      const places =
-        data && data.length > 0 ? data.concat(demoMarkers) : demoMarkers;
+      const places = data && data.length > 0 ? data.concat(demoMarkers) : demoMarkers;
 
       // Clear old markers
       markers.current.forEach((m) => m.remove());
       markers.current = [];
 
-      places.forEach((p) => {
+      places.forEach((p: any) => {
         const markerEl = document.createElement("div");
         markerEl.className = "marker-dot";
         markerEl.style.cssText = `
@@ -309,7 +311,7 @@ const MapView = ({ onAddMarker }: MapViewProps) => {
   //---------------------------------------------------------
   // ROUTING
   //---------------------------------------------------------
-  const calculateRoute = async (
+  const calculateNormalRoute = async (
     uLng: number,
     uLat: number,
     dLng: number,
@@ -328,13 +330,13 @@ const MapView = ({ onAddMarker }: MapViewProps) => {
         p.latitude,
       ]);
 
-      if (routeLayerRef.current) {
-        map.current.removeLayer(routeLayerRef.current);
-        map.current.removeSource(routeLayerRef.current);
+      if (routeLayerRefNormal.current) {
+        map.current.removeLayer(routeLayerRefNormal.current);
+        map.current.removeSource(routeLayerRefNormal.current);
       }
 
-      const id = "route-" + Date.now();
-      routeLayerRef.current = id;
+      const id = "route-normal-" + Date.now();
+      routeLayerRefNormal.current = id;
 
       map.current.addSource(id, {
         type: "geojson",
@@ -358,6 +360,57 @@ const MapView = ({ onAddMarker }: MapViewProps) => {
     } catch (e) {
       console.error(e);
       toast.error("Route error");
+    }
+  };
+
+  // Accessible route via backend AI/pathfinding
+  const calculateAccessibleRoute = async (
+    uLng: number,
+    uLat: number,
+    dLng: number,
+    dLat: number
+  ) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/calculate-route`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ start: { lat: uLat, lng: uLng }, end: { lat: dLat, lng: dLng } }),
+      });
+      const data = await res.json();
+
+      const coords = (data.path || []).map((p: any) => [p.lng, p.lat]);
+
+      if (!coords.length) return;
+
+      if (routeLayerRefAccessible.current) {
+        map.current.removeLayer(routeLayerRefAccessible.current);
+        map.current.removeSource(routeLayerRefAccessible.current);
+      }
+
+      const id = "route-accessible-" + Date.now();
+      routeLayerRefAccessible.current = id;
+
+      map.current.addSource(id, {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: { type: "LineString", coordinates: coords },
+        },
+      });
+
+      map.current.addLayer({
+        id,
+        type: "line",
+        source: id,
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: {
+          "line-color": "#10b981",
+          "line-width": 5,
+          "line-dasharray": [2, 2],
+        },
+      });
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -399,7 +452,8 @@ const MapView = ({ onAddMarker }: MapViewProps) => {
 
     if (userMarker.current) {
       const u = userMarker.current.getLngLat();
-      calculateRoute(u.lng, u.lat, lon, lat);
+      calculateNormalRoute(u.lng, u.lat, lon, lat);
+      calculateAccessibleRoute(u.lng, u.lat, lon, lat);
     }
   };
 
