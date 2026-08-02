@@ -1,59 +1,90 @@
+# Marg-Darshak 🗺️
 
-## How can I edit this code?
+Marg-Darshak is a community-driven platform designed to map and share accessibility information about various locations. It empowers users to view accessible places and potential obstacles on an interactive map, submit new reports, and engage with the community to build a more inclusive world.
 
-There are several ways of editing your application.
+## 🚀 Features
 
-**Use your preferred IDE**
+- **Interactive Accessibility Map**: View accessible routes, ramps, tactile paths, and potential obstacles in real-time.
+- **Community Reporting**: Users can submit reports for new accessible locations or obstacles, fostering a community-driven database.
+- **AR View (Augmented Reality)**: Explore locations with an experimental AR interface for better spatial awareness.
+- **Admin Dashboard**: Moderation tools for admins to approve, reject, or manage community submissions.
+- **Analytics**: Insights and data visualization for accessibility trends in various areas.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. 
+## 🏗️ Architecture
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+The project follows a modern client-server architecture:
 
-Follow these steps:
+- **Frontend**: A Single Page Application (SPA) built with React and Vite, ensuring fast load times and a smooth user experience. State management and data fetching are optimized using TanStack Query.
+- **Backend**: A robust REST API built with FastAPI (Python) that handles business logic, authentication validation, and AI/ML processing.
+- **Database & Auth**: Firebase handles user authentication securely and stores dynamic community data in Firestore (NoSQL).
+- **Mapping Service**: TomTom Web SDK is integrated for highly customizable and accurate map rendering.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+## 💻 Tech Stack
+
+### Frontend
+- **Framework**: React 18 with Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Library**: Shadcn UI (Radix UI base)
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router DOM
+- **Maps Integration**: TomTom Maps SDK for Web
+
+### Backend
+- **Framework**: FastAPI (Python 3.x)
+- **Authentication**: Firebase Authentication
+- **Database**: Firebase Firestore (NoSQL)
+- **Storage**: Firebase Storage
+
+## 🛠️ Setup & Installation
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v16+)
+- [Python](https://www.python.org/) (v3.8+)
+- Firebase Project configured
+
+### 1. Clone the repository
+```bash
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### 2. Frontend Setup
+```bash
+# Install dependencies
+npm install
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+# Start the development server
+npm run dev
+```
+*Note: Ensure you add your Firebase and TomTom API keys to a `.env` file in the root directory.*
 
-**Use GitHub Codespaces**
+### 3. Backend Setup
+```bash
+# Navigate to the backend directory
+cd backend
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Create a virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-## What technologies are used for this project?
+# Install dependencies
+pip install -r requirements.txt
 
-This project is built with:
+# Start the FastAPI server
+uvicorn main:app --reload
+```
+*Note: You will need to place your Firebase `serviceAccountKey.json` in the backend directory to interact with Firestore.*
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🚢 Deployment
 
-## How can I deploy this project?
-use open source deoloyment platform like vercel,render,netlify etc.
+- **Frontend**: Can be easily deployed to platforms like Vercel, Netlify, or Cloudflare Pages.
+- **Backend**: Can be containerized with Docker or deployed directly to services like Render, Heroku, or Railway.
 
-Yes, you can!
+## 🤝 Contributing
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Contributions, issues, and feature requests are welcome! 
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📝 License
+
+This project is licensed under the MIT License.
